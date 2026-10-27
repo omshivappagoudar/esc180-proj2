@@ -9,16 +9,40 @@ This is a placeholder that you should remove once you modify the function.
 Author(s): Michael Guerzhoy with tests contributed by Siavash Kazemian.  Last modified: Oct. 19, 2026
 """
 
-def is_empty(board): ## Returns True if the board is empty, False otherwise
+def is_empty(board): ## Return True if the board is empty, False otherwise
     for row in board:
         for cell in row:
             if cell != " ":
                 return False
     return True
+
+def is_square_in_board(board, square): ## Return True if tuple square is within the confines of the board
+    valid_row = (0 < square[0] and square[0] < len(board))
+    valid_column = (0 < square[1] and square[1] < len(board[0]))
+    if valid_column and valid_row:
+        return True
+    return False
+
+def is_bounded(board, y_end, x_end, length, d_y, d_x): ## Return "OPEN", "SEMIOPEN", or "CLOSED" depending on the status of the sequence
+    free_ends = 0
+
+    end_cap = (y_end + d_y, x_end + d_x)
+    start_cap = (y_end - length * d_y, x_end - length * d_x)
     
-def is_bounded(board, y_end, x_end, length, d_y, d_x):
-    pass
-    
+    if is_square_in_board(board, end_cap):
+            if board[end_cap[0]][end_cap[1]] == ' ':
+                free_ends += 1
+    if is_square_in_board(board, end_cap):
+            if board[end_cap[0]][end_cap[1]] == ' ':
+                free_ends += 1
+
+    if free_ends == 2:
+        return "OPEN"
+    elif free_ends == 1:
+        return "SEMIOPEN"
+    else:
+        return "CLOSED"
+
 def detect_row(board, col, y_start, x_start, length, d_y, d_x):
     pass
     # return open_seq_count, semi_open_seq_count
