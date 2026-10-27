@@ -9,14 +9,19 @@ This is a placeholder that you should remove once you modify the function.
 Author(s): Michael Guerzhoy with tests contributed by Siavash Kazemian.  Last modified: Oct. 19, 2026
 """
 
-def is_empty(board):
-    pass
+def is_empty(board): ## Returns True if the board is empty, False otherwise
+    for row in board:
+        for cell in row:
+            if cell != " ":
+                return False
+    return True
     
 def is_bounded(board, y_end, x_end, length, d_y, d_x):
     pass
     
 def detect_row(board, col, y_start, x_start, length, d_y, d_x):
-    return open_seq_count, semi_open_seq_count
+    pass
+    # return open_seq_count, semi_open_seq_count
     
 def detect_rows(board, col, length):
     ####CHANGE ME
@@ -24,7 +29,8 @@ def detect_rows(board, col, length):
     return open_seq_count, semi_open_seq_count
     
 def search_max(board):
-    return move_y, move_x
+    pass
+    # return move_y, move_x
     
 def score(board):
     MAX_SCORE = 100000
@@ -305,5 +311,8 @@ def some_tests():
     #        Semi-open rows of length 5: 0
 
 if __name__ == '__main__':
-    play_gomoku(8)
+    # play_gomoku(8)
+
+
+    easy_testset_for_main_functions()
     
