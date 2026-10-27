@@ -17,8 +17,8 @@ def is_empty(board): ## Return True if the board is empty, False otherwise
     return True
 
 def is_square_in_board(board, square): ## OPTIONAL HELPER FUNCTION: Return True if tuple square is within the confines of the board
-    valid_row = (0 < square[0] and square[0] < len(board))
-    valid_column = (0 < square[1] and square[1] < len(board[0]))
+    valid_row = (0 <= square[0] and square[0] < len(board))
+    valid_column = (0 <= square[1] and square[1] < len(board[0]))
     if valid_column and valid_row:
         return True
     return False
@@ -67,6 +67,9 @@ def detect_row(board, col, y_start, x_start, length, d_y, d_x): ## Return a tupl
             if counter >= 2:
                 candidates.append((y - d_y, x - d_x, counter))  # Store the end position and length of the sequence
             counter = 0
+    if counter >= 2:    # Save any sequence that reaches the last square of the line.
+        y_end, x_end = squares_in_sequence[-1]
+        candidates.append((y_end, x_end, counter))
 
     for square in candidates:
         y_end, x_end, seq_length = square
@@ -95,21 +98,21 @@ def detect_rows(board, col, length): ## Return a tuple containing the number of 
         semi_open_seq_count += semi_open_count
 
     # Check diagonals (top-left to bottom-right)
-    for y in range(len(board)-2):
+    for y in range(len(board)):
         open_count, semi_open_count = detect_row(board, col, y, 0, length, 1, 1)
         open_seq_count += open_count
         semi_open_seq_count += semi_open_count
-    for x in range(1, len(board[0])-2):
+    for x in range(1, len(board[0])):
         open_count, semi_open_count = detect_row(board, col, 0, x, length, 1, 1)
         open_seq_count += open_count
         semi_open_seq_count += semi_open_count
 
     # Check diagonals (top-right to bottom-left)
-    for y in range(len(board)-2):
+    for y in range(len(board)):
         open_count, semi_open_count = detect_row(board, col, y, len(board[0])-1, length, 1, -1)
         open_seq_count += open_count
         semi_open_seq_count += semi_open_count
-    for x in range(len(board[0])-2):
+    for x in range(len(board[0])-1):
         open_count, semi_open_count = detect_row(board, col, 0, x, length, 1, -1)
         open_seq_count += open_count
         semi_open_seq_count += semi_open_count
