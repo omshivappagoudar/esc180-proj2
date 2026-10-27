@@ -16,7 +16,7 @@ def is_empty(board): ## Return True if the board is empty, False otherwise
                 return False
     return True
 
-def is_square_in_board(board, square): ## Return True if tuple square is within the confines of the board
+def is_square_in_board(board, square): ## OPTIONAL HELPER FUNCTION: Return True if tuple square is within the confines of the board
     valid_row = (0 < square[0] and square[0] < len(board))
     valid_column = (0 < square[1] and square[1] < len(board[0]))
     if valid_column and valid_row:
@@ -32,8 +32,8 @@ def is_bounded(board, y_end, x_end, length, d_y, d_x): ## Return "OPEN", "SEMIOP
     if is_square_in_board(board, end_cap):
             if board[end_cap[0]][end_cap[1]] == ' ':
                 free_ends += 1
-    if is_square_in_board(board, end_cap):
-            if board[end_cap[0]][end_cap[1]] == ' ':
+    if is_square_in_board(board, start_cap):
+            if board[start_cap[0]][start_cap[1]] == ' ':
                 free_ends += 1
 
     if free_ends == 2:
@@ -43,13 +43,77 @@ def is_bounded(board, y_end, x_end, length, d_y, d_x): ## Return "OPEN", "SEMIOP
     else:
         return "CLOSED"
 
-def detect_row(board, col, y_start, x_start, length, d_y, d_x):
-    pass
-    # return open_seq_count, semi_open_seq_count
-    
-def detect_rows(board, col, length):
-    ####CHANGE ME
+def detect_row(board, col, y_start, x_start, length, d_y, d_x): ## Return a tuple containing the number of open and semi-open sequences of the given length for the given color
+
     open_seq_count, semi_open_seq_count = 0, 0
+    squares_in_sequence = [(y_start, x_start)]  # Initialize with the starting square
+    candidates = []
+    i = 1
+
+    while is_square_in_board(board, squares_in_sequence[-1]):
+        y = y_start + i * d_y
+        x = x_start + i * d_x
+        squares_in_sequence.append((y, x))
+        i += 1
+
+    squares_in_sequence = squares_in_sequence[:-1]  # Remove the last square which is out of bounds
+   
+    counter = 0
+    for square in squares_in_sequence:
+        y, x = square
+        if board[y][x] == col:
+            counter += 1
+        else:
+            if counter >= 2:
+                candidates.append((y - d_y, x - d_x, counter))  # Store the end position and length of the sequence
+            counter = 0
+
+    for square in candidates:
+        y_end, x_end, seq_length = square
+        if seq_length == length:
+            status = is_bounded(board, y_end, x_end, length, d_y, d_x)
+            if status == "OPEN":
+                open_seq_count += 1
+            elif status == "SEMIOPEN":
+                semi_open_seq_count += 1
+
+    return open_seq_count, semi_open_seq_count
+    
+def detect_rows(board, col, length): ## Return a tuple containing the number of open and semi-open sequences of the given length for the given color across the entire board
+    open_seq_count, semi_open_seq_count = 0, 0
+
+    # Check rows
+    for y in range(len(board)):
+        open_count, semi_open_count = detect_row(board, col, y, 0, length, 0, 1)
+        open_seq_count += open_count
+        semi_open_seq_count += semi_open_count
+
+    # Check columns
+    for x in range(len(board[0])):
+        open_count, semi_open_count = detect_row(board, col, 0, x, length, 1, 0)
+        open_seq_count += open_count
+        semi_open_seq_count += semi_open_count
+
+    # Check diagonals (top-left to bottom-right)
+    for y in range(len(board)-2):
+        open_count, semi_open_count = detect_row(board, col, y, 0, length, 1, 1)
+        open_seq_count += open_count
+        semi_open_seq_count += semi_open_count
+    for x in range(1, len(board[0])-2):
+        open_count, semi_open_count = detect_row(board, col, 0, x, length, 1, 1)
+        open_seq_count += open_count
+        semi_open_seq_count += semi_open_count
+
+    # Check diagonals (top-right to bottom-left)
+    for y in range(len(board)-2):
+        open_count, semi_open_count = detect_row(board, col, y, len(board[0])-1, length, 1, -1)
+        open_seq_count += open_count
+        semi_open_seq_count += semi_open_count
+    for x in range(len(board[0])-2):
+        open_count, semi_open_count = detect_row(board, col, 0, x, length, 1, -1)
+        open_seq_count += open_count
+        semi_open_seq_count += semi_open_count
+
     return open_seq_count, semi_open_seq_count
     
 def search_max(board):
