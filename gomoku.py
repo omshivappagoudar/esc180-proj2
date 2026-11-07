@@ -9,6 +9,9 @@ This is a placeholder that you should remove once you modify the function.
 Author(s): Michael Guerzhoy with tests contributed by Siavash Kazemian.  Last modified: Oct. 19, 2026
 """
 
+from ast import For
+
+
 def is_empty(board): ## Return True if the board is empty, False otherwise
     for row in board:
         for cell in row:
@@ -47,7 +50,6 @@ def detect_row(board, col, y_start, x_start, length, d_y, d_x): ## Return a tupl
 
     open_seq_count, semi_open_seq_count = 0, 0
     squares_in_sequence = [(y_start, x_start)]  # Initialize with the starting square
-    candidates = []
     i = 1
 
     while is_square_in_board(board, squares_in_sequence[-1]):
@@ -59,6 +61,7 @@ def detect_row(board, col, y_start, x_start, length, d_y, d_x): ## Return a tupl
     squares_in_sequence = squares_in_sequence[:-1]  # Remove the last square which is out of bounds
    
     counter = 0
+    candidates = []
     for square in squares_in_sequence:
         y, x = square
         if board[y][x] == col:
@@ -120,8 +123,22 @@ def detect_rows(board, col, length): ## Return a tuple containing the number of 
     return open_seq_count, semi_open_seq_count
     
 def search_max(board):
-    pass
-    # return move_y, move_x
+    best_score = -100001
+    best_move = None
+
+    for row in range(len(board)):
+        for column in range(len(board[0])):
+            if board[row][column] == " ":
+
+                board[row][column] = "b"
+                current_score = score(board)
+                board[row][column] = " "
+
+                if current_score > best_score:
+                    best_score = current_score
+                    best_move = (row, column)
+
+    return best_move
     
 def score(board):
     MAX_SCORE = 100000
@@ -150,9 +167,73 @@ def score(board):
             50   * open_b[3]                     + 
             10   * semi_open_b[3]                +  
             open_b[2] + semi_open_b[2] - open_w[2] - semi_open_w[2])
+
+def check_row_has_5(board, color, y_start, x_start, d_y, d_x): ## OPTIONAL HELPER FUNCTION: check if a row has has 5 of a given color!
+
+    squares_in_sequence = [(y_start, x_start)]  # Initialize with the starting square
+    i = 1
+
+    while is_square_in_board(board, squares_in_sequence[-1]):
+        y = y_start + i * d_y
+        x = x_start + i * d_x
+        squares_in_sequence.append((y, x))
+        i += 1
+
+    squares_in_sequence = squares_in_sequence[:-1]  # Remove the last square which is out of bounds
+   
+    counter = 0
+    for square in squares_in_sequence:
+        y, x = square
+        if board[y][x] == color:
+            counter += 1
+        else:
+            if counter == 5:
+                return True
+            counter = 0
+    if counter == 5:    # Save any sequence that reaches the last square of the line.
+        return True
+    return False
     
 def is_win(board):
-    pass
+    for color in ["b", "w"]:
+        color_name = "Black"
+        if color == "w":
+            color_name = "White"
+
+        win_message = (f'{color_name} won')
+
+        # Check rows
+        for y in range(len(board)):
+            if check_row_has_5(board, color, y, 0, 0, 1):
+                return win_message
+    
+        # Check columns
+        for x in range(len(board[0])):
+            if check_row_has_5(board, color, 0, x, 1, 0):
+                return win_message
+    
+        # Check diagonals (top-left to bottom-right)
+        for y in range(len(board)):
+            if check_row_has_5(board, color, y, 0, 1, 1):
+                return win_message
+        for x in range(1, len(board[0])):
+            if check_row_has_5(board, color, 0, x, 1, 1):
+                return win_message
+    
+        # Check diagonals (top-right to bottom-left)
+        for y in range(len(board)):
+            if check_row_has_5(board, color, y, len(board[0])-1, 1, -1):
+                return win_message
+        for x in range(len(board[0])-1):
+            if check_row_has_5(board, color, 0, x, 1, -1):
+                return win_message
+    
+    for row in board:
+        for cell in row:
+            if cell == " ":
+                return "Continue playing"
+
+    return "Draw"
 
 def print_board(board):
     
